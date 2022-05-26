@@ -44,8 +44,6 @@ const authController = {
     try {
       const { credential, password } = req.body;
 
-      console.log(req);
-
       const checkCredential = await User.findOne({
         where: {
           [Op.or]: [{ username: credential }, { email: credential }],
@@ -76,6 +74,36 @@ const authController = {
       return res.status(200).json({
         message: "User Logged in",
         result: { checkCredential, cookie },
+      });
+    } catch (err) {
+      console.log(err);
+      return res.status(500).json({
+        message: "Server Error!",
+      });
+    }
+  },
+  keepLogin: async (req, res) => {
+    try {
+      const { token } = req;
+
+      const newToken = generateToken({ id: token.id });
+
+      const findUser = await User.findByPk(token.id);
+
+      if (!findUser) {
+        return res.status(400).json({
+          message: "User not Found",
+        });
+      }
+
+      delete findUser.dataValues.password;
+
+      return res.status(200).json({
+        message: "User found",
+        result: {
+          user: findUser,
+          token: newToken,
+        },
       });
     } catch (err) {
       console.log(err);
