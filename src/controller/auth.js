@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
 const { User } = require("../lib/sequelize");
 const bcrypt = require("bcrypt");
+const { generateToken } = require("../lib/jwt");
 
 const authController = {
   registerUser: async (req, res) => {
@@ -68,11 +69,13 @@ const authController = {
         });
       }
 
+      const cookie = generateToken({ id: checkCredential.id });
+
       delete checkCredential.dataValues.password;
 
       return res.status(200).json({
         message: "User Logged in",
-        result: { checkCredential },
+        result: { checkCredential, cookie },
       });
     } catch (err) {
       console.log(err);
