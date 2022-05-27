@@ -8,6 +8,7 @@ const userControllers = {
       const result = await User.findAll({
         where: {
           ...req.query,
+          [Op.not]: [{ id: req.token.id }],
         },
       });
 
